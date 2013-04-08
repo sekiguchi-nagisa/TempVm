@@ -138,7 +138,7 @@ int main (void)
 	Code add_example[40];
 	add_example[0] = PUSH;
 	add_example[1] = 10; //arg
-	add_example[2] = CALL;
+	add_example[2] = CALL; //add_example[3] = mtd1;
 	add_example[3] = 1;
 	add_example[4] = 7;
 	add_example[5] = PRINT;
@@ -176,6 +176,14 @@ int main (void)
 	 * 2, // number of args.
 	 * &ADD, // index of entry point.
 	 */
+
+
+//	Method *mtd1 = {&fact_code};
+//	Method *mtd2 = {&main_code};
+//
+//	execute(mtd2);
+
+
 	vm.codeList = add_example;
 	vm.pc = 0;
 	vm.funcPointer = 0;
