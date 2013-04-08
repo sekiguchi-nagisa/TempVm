@@ -120,7 +120,7 @@ void execute(VM *vm)
 			vm->funcPointer = vm->stackTop;
 			break;}
 		case LOAD_ARG:{
-			int num = vm->codeList[++vm->stackTop];
+			int num = vm->stack[vm->funcPointer - 2];
 			int arg = vm->stack[vm->funcPointer - 2 - num];
 			vm->stack[++vm->stackTop] = arg;
 			break;}
@@ -132,28 +132,39 @@ void execute(VM *vm)
 int main (void)
 {
 	VM vm = {0};
-	Code add_example[] = {
-			PUSH,
-			22,
-			PUSH,
-			11,
-			PUSH,
-			2,
-			GT,
-			IF_JUMP,
-			11,
-			PRINT,
-			RET,
-			PUSH,
-			11,
-			PUSH,
-			2,
-			SUB,
-			PRINT,
-			RET,
-	};
-//	Code add_example[30];
-//	add_example[0] = ;
+//	Code add_example[] = {
+//			PUSH,
+//			22,
+//			PUSH,
+//			11,
+//			PUSH,
+//			2,
+//			GT,
+//			IF_JUMP,
+//			11,
+//			PRINT,
+//			RET,
+//			PUSH,
+//			11,
+//			PUSH,
+//			2,
+//			SUB,
+//			PRINT,
+//			RET,
+//	};
+	Code add_example[30];
+	add_example[0] = PUSH;
+	add_example[1] = 22;
+	add_example[2] = PRINT;
+	add_example[3] = CALL;
+	add_example[4] = 1;
+	add_example[5] = 8;
+	add_example[6] = PRINT;
+	add_example[7] = RET;
+	add_example[8] = LOAD_ARG;
+	add_example[9] = PRINT;
+	add_example[10] = RET;
+
 	/*
 	 * PUSH,
 	 * 1,
