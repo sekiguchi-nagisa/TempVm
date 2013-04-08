@@ -7,6 +7,14 @@
 
 #include <stdio.h>
 
+/*
+ * funcPointer .......stacktop
+ * pc
+ * argument number
+ * arguments
+ *
+ *
+ */
 typedef enum {
 	RET,
 	POP,
@@ -24,9 +32,7 @@ typedef enum {
 	GTEQ,
 	IF_JUMP,
 	CALL,
-	SET_ARG,
 	LOAD_ARG,
-	STORE_ARG,
 } Code;
 
 typedef struct {
@@ -50,9 +56,15 @@ void execute(VM *vm)
 		case RET:
 			if (vm->funcPointer == 0) {
 				return;
+			} else {
+				int ret = vm->stack[vm->stackTop];
+				vm->pc = vm->stack[vm->funcPointer - 1];
+				int argNum = vm->stack[vm->funcPointer - 2];
+				vm->stackTop = vm->funcPointer - 2 - argNum;
+				vm->stack[vm->stackTop] = ret;
+				vm->funcPointer = vm->stack[vm->funcPointer];
+				break;
 			}
-
-			break;
 		case POP:
 			vm->stackTop--;
 			break;
@@ -100,15 +112,18 @@ void execute(VM *vm)
 			}
 			break;}
 		case CALL:{
+			vm->stack[++vm->stackTop] = vm->codeList[++vm->pc];
 			int label = vm->codeList[++vm->pc];
 			vm->stack[++vm->stackTop] = vm->pc;
 			vm->stack[++vm->stackTop] = vm->funcPointer;
 			vm->pc = label - 1;
 			vm->funcPointer = vm->stackTop;
 			break;}
-		case SET_ARG:
-			vm->stack[++vm->stackTop] = vm->codeList[++vm->pc];
-			break;
+		case LOAD_ARG:{
+			int num = vm->codeList[++vm->stackTop];
+			int arg = vm->stack[vm->funcPointer - 2 - num];
+			vm->stack[++vm->stackTop] = arg;
+			break;}
 		}
 		vm->pc++;
 	}
@@ -137,8 +152,20 @@ int main (void)
 			PRINT,
 			RET,
 	};
+//	Code add_example[30];
+//	add_example[0] = ;
+	/*
+	 * PUSH,
+	 * 1,
+	 * PUSH,
+	 * 2,
+	 * CALL,
+	 * 2, // number of args.
+	 * &ADD, // index of entry point.
+	 */
 	vm.codeList = add_example;
 	vm.pc = 0;
+	vm.funcPointer = 0;
 
 	execute(&vm); // 3
 
