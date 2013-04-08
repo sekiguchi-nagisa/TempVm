@@ -31,7 +31,7 @@ typedef enum {
 	GT,
 	GTEQ,
 	IF_JUMP,
-	CALL,
+	CALL,	//CALL argNum funcIndex
 	LOAD_ARG,
 } Code;
 
@@ -120,7 +120,7 @@ void execute(VM *vm)
 			vm->funcPointer = vm->stackTop;
 			break;}
 		case LOAD_ARG:{
-			int num = vm->stack[vm->funcPointer - 2];
+			int num = vm->codeList[++vm->pc];
 			int arg = vm->stack[vm->funcPointer - 2 - num];
 			vm->stack[++vm->stackTop] = arg;
 			break;}
@@ -162,8 +162,13 @@ int main (void)
 	add_example[6] = PRINT;
 	add_example[7] = RET;
 	add_example[8] = LOAD_ARG;
-	add_example[9] = PRINT;
-	add_example[10] = RET;
+	add_example[9] = 1;
+	add_example[10] = PRINT;
+	add_example[11] = PUSH;
+	add_example[12] = 20;
+	add_example[13] = PRINT;
+	add_example[14] = SUB;
+	add_example[15] = RET;
 
 	/*
 	 * PUSH,
@@ -178,7 +183,7 @@ int main (void)
 	vm.pc = 0;
 	vm.funcPointer = 0;
 
-	execute(&vm); // 3
+	execute(&vm);
 
 	return 0;
 }
