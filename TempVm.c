@@ -30,9 +30,9 @@ typedef enum {
 	LTEQ,
 	GT,
 	GTEQ,
-	IF_JUMP,
-	CALL,	//CALL argNum funcIndex
-	LOAD_ARG,
+	IF_JUMP, // IF_JUMP label
+	CALL,	// CALL argNum funcIndex
+	LOAD_ARG, // LOAD_ARG n
 } Code;
 
 typedef struct {
@@ -80,9 +80,11 @@ void execute(VM *vm)
 		case MUL:
 			EXEC_BINARY_OP(vm, *);
 			break;
-		case DIV:
-			EXEC_BINARY_OP(vm, /);
-			break;
+		case DIV:{
+			int arg2 = vm->stack[vm->stackTop];
+			int arg1 = vm->stack[--vm->stackTop];
+			vm->stack[vm->stackTop] = (int)(arg1 / arg2);
+			break;}
 		case PRINT:
 			printf("[%2d] %d\n", vm->stackTop, vm->stack[vm->stackTop]);
 			break;
@@ -132,44 +134,39 @@ void execute(VM *vm)
 int main (void)
 {
 	VM vm = {0};
-//	Code add_example[] = {
-//			PUSH,
-//			22,
-//			PUSH,
-//			11,
-//			PUSH,
-//			2,
-//			GT,
-//			IF_JUMP,
-//			11,
-//			PRINT,
-//			RET,
-//			PUSH,
-//			11,
-//			PUSH,
-//			2,
-//			SUB,
-//			PRINT,
-//			RET,
-//	};
-	Code add_example[30];
-	add_example[0] = PUSH;
-	add_example[1] = 22;
-	add_example[2] = PRINT;
-	add_example[3] = CALL;
-	add_example[4] = 1;
-	add_example[5] = 8;
-	add_example[6] = PRINT;
-	add_example[7] = RET;
-	add_example[8] = LOAD_ARG;
-	add_example[9] = 1;
-	add_example[10] = PRINT;
-	add_example[11] = PUSH;
-	add_example[12] = 20;
-	add_example[13] = PRINT;
-	add_example[14] = SUB;
-	add_example[15] = RET;
 
+	Code add_example[40];
+	add_example[0] = PUSH;
+	add_example[1] = 10; //arg
+	add_example[2] = CALL;
+	add_example[3] = 1;
+	add_example[4] = 7;
+	add_example[5] = PRINT;
+	add_example[6] = RET;
+	add_example[7] = LOAD_ARG;
+	add_example[8] = 1;
+	add_example[9] = PUSH;
+	add_example[10] = 2;
+	add_example[11] = GTEQ;
+	add_example[12] = IF_JUMP;
+	add_example[13] = 18;
+	add_example[14] = PUSH;
+	add_example[15] = 1;
+	add_example[16] = PRINT;
+	add_example[17] = RET;
+	add_example[18] = LOAD_ARG;
+	add_example[19] = 1;
+	add_example[20] = PUSH;
+	add_example[21] = 1;
+	add_example[22] = SUB;
+	add_example[23] = CALL;
+	add_example[24] = 1;
+	add_example[25] = 7;
+	add_example[26] = LOAD_ARG;
+	add_example[27] = 1;
+	add_example[28] = MUL;
+	add_example[29] = PRINT;
+	add_example[30] = RET;
 	/*
 	 * PUSH,
 	 * 1,
