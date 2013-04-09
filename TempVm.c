@@ -180,15 +180,58 @@ int main (void)
 	factCode[23] = PRINT;
 	factCode[24] = RET;
 
-	Code mainCode[10];
-	mainCode[0] = PUSH;
-	mainCode[1] = 10; //arg
-	mainCode[2] = CALL;
-	mainCode[3] = 1;
-	mainCode[4] = factPointer.code[0];
-	mainCode[5] = factPointer.code[1];
-	mainCode[6] = PRINT;
-	mainCode[7] = RET;
+	Code fact_mainCode[10];
+	fact_mainCode[0] = PUSH;
+	fact_mainCode[1] = 10; //arg
+	fact_mainCode[2] = CALL;
+	fact_mainCode[3] = 1;
+	fact_mainCode[4] = factPointer.code[0];
+	fact_mainCode[5] = factPointer.code[1];
+	fact_mainCode[6] = PRINT;
+	fact_mainCode[7] = RET;
+
+	Code fibCode[30];
+	Pointer fibPointer;
+	fibPointer.address = fibCode;
+	fibCode[0] = LOAD_ARG;
+	fibCode[1] = 1;
+	fibCode[2] = PUSH;
+	fibCode[3] = 3;
+	fibCode[4] = GTEQ;
+	fibCode[5] = 9;
+	fibCode[6] = PUSH;
+	fibCode[7] = 1;
+	fibCode[8] = RET;
+	fibCode[9] = LOAD_ARG;
+	fibCode[10] = 1;
+	fibCode[11] = PUSH;
+	fibCode[12] = 1;
+	fibCode[13] = SUB;
+	fibCode[14] = CALL;
+	fibCode[15] = 1;
+	fibCode[16] = fibPointer.code[0];
+	fibCode[17] = fibPointer.code[1];
+	fibCode[18] = LOAD_ARG;
+	fibCode[19] = 1;
+	fibCode[20] = PUSH;
+	fibCode[21] = 2;
+	fibCode[22] = SUB;
+	fibCode[23] = CALL;
+	fibCode[24] = 1;
+	fibCode[25] = fibPointer.code[0];
+	fibCode[26] = fibPointer.code[1];
+	fibCode[27] = MUL;
+	fibCode[28] = RET;
+
+	Code fib_mainCode[10];
+	fib_mainCode[0] = PUSH;
+	fib_mainCode[1] = 36;
+	fib_mainCode[2] = CALL;
+	fib_mainCode[3] = 1;
+	fib_mainCode[4] = fibPointer.code[0];
+	fib_mainCode[5] = fibPointer.code[1];
+	fib_mainCode[6] = PRINT;
+	fib_mainCode[7] = RET;
 
 //	Method *mtd1 = {&fact_code};
 //	Method *mtd2 = {&main_code};
@@ -198,7 +241,7 @@ int main (void)
 	vm.pc = 0;
 	vm.funcPointer = 0;
 
-	execute(&vm, mainCode);
+	execute(&vm, fact_mainCode);
 
 	return 0;
 }
