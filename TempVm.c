@@ -40,8 +40,12 @@ typedef struct {
 	int stack[1024];
 	int pc;
 	int funcPointer;
-	Code* codeList;
 } VM;
+
+typedef union {
+	int code[2];
+	Code *address;
+} Pointer;
 
 #define EXEC_BINARY_OP(vm, OP) do{\
 	int arg2 = vm->stack[vm->stackTop];\
@@ -49,10 +53,10 @@ typedef struct {
 	vm->stack[vm->stackTop] = arg1 OP arg2;\
 }while(0)
 
-void execute(VM *vm)
+void execute(VM *vm, Code *codeList)
 {
 	while(1){
-		switch (vm->codeList[vm->pc]) {
+		switch (codeList[vm->pc]) {
 		case RET:
 			if (vm->funcPointer == 0) {
 				return;
@@ -63,13 +67,13 @@ void execute(VM *vm)
 				vm->stackTop = vm->funcPointer - 2 - argNum;
 				vm->stack[vm->stackTop] = ret;
 				vm->funcPointer = vm->stack[vm->funcPointer];
-				break;
+				return;
 			}
 		case POP:
 			vm->stackTop--;
 			break;
 		case PUSH:
-			vm->stack[++vm->stackTop] = vm->codeList[++vm->pc];
+			vm->stack[++vm->stackTop] = codeList[++vm->pc];
 			break;
 		case ADD:
 			EXEC_BINARY_OP(vm, +);
@@ -108,21 +112,24 @@ void execute(VM *vm)
 			break;
 		case IF_JUMP:{
 			int arg = vm->stack[vm->stackTop--];
-			int label = vm->codeList[++vm->pc];
+			int label = codeList[++vm->pc];
 			if (arg) {
 				vm->pc = label - 1;
 			}
 			break;}
 		case CALL:{
-			vm->stack[++vm->stackTop] = vm->codeList[++vm->pc];
-			int label = vm->codeList[++vm->pc];
+			vm->stack[++vm->stackTop] = codeList[++vm->pc];
+			int label1 = codeList[++vm->pc];
+			int label2 = codeList[++vm->pc];
+			Pointer pointer = {{label1, label2}};
 			vm->stack[++vm->stackTop] = vm->pc;
 			vm->stack[++vm->stackTop] = vm->funcPointer;
-			vm->pc = label - 1;
+			vm->pc = 0;
 			vm->funcPointer = vm->stackTop;
+			execute(vm, pointer.address);
 			break;}
 		case LOAD_ARG:{
-			int num = vm->codeList[++vm->pc];
+			int num = codeList[++vm->pc];
 			int arg = vm->stack[vm->funcPointer - 2 - num];
 			vm->stack[++vm->stackTop] = arg;
 			break;}
@@ -134,39 +141,6 @@ void execute(VM *vm)
 int main (void)
 {
 	VM vm = {0};
-
-	Code add_example[40];
-	add_example[0] = PUSH;
-	add_example[1] = 10; //arg
-	add_example[2] = CALL; //add_example[3] = mtd1;
-	add_example[3] = 1;
-	add_example[4] = 7;
-	add_example[5] = PRINT;
-	add_example[6] = RET;
-	add_example[7] = LOAD_ARG;
-	add_example[8] = 1;
-	add_example[9] = PUSH;
-	add_example[10] = 2;
-	add_example[11] = GTEQ;
-	add_example[12] = IF_JUMP;
-	add_example[13] = 18;
-	add_example[14] = PUSH;
-	add_example[15] = 1;
-	add_example[16] = PRINT;
-	add_example[17] = RET;
-	add_example[18] = LOAD_ARG;
-	add_example[19] = 1;
-	add_example[20] = PUSH;
-	add_example[21] = 1;
-	add_example[22] = SUB;
-	add_example[23] = CALL;
-	add_example[24] = 1;
-	add_example[25] = 7;
-	add_example[26] = LOAD_ARG;
-	add_example[27] = 1;
-	add_example[28] = MUL;
-	add_example[29] = PRINT;
-	add_example[30] = RET;
 	/*
 	 * PUSH,
 	 * 1,
@@ -177,18 +151,54 @@ int main (void)
 	 * &ADD, // index of entry point.
 	 */
 
+	Code factCode[30];
+	Pointer factPointer;
+	factPointer.address = factCode;
+	factCode[0] = LOAD_ARG;
+	factCode[1] = 1;
+	factCode[2] = PUSH;
+	factCode[3] = 2;
+	factCode[4] = GTEQ;
+	factCode[5] = IF_JUMP;
+	factCode[6] = 11;
+	factCode[7] = PUSH;
+	factCode[8] = 1;
+	factCode[9] = PRINT;
+	factCode[10] = RET;
+	factCode[11] = LOAD_ARG;
+	factCode[12] = 1;
+	factCode[13] = PUSH;
+	factCode[14] = 1;
+	factCode[15] = SUB;
+	factCode[16] = CALL;
+	factCode[17] = 1;
+	factCode[18] = factPointer.code[0];
+	factCode[19] = factPointer.code[1];
+	factCode[20] = LOAD_ARG;
+	factCode[21] = 1;
+	factCode[22] = MUL;
+	factCode[23] = PRINT;
+	factCode[24] = RET;
+
+	Code mainCode[10];
+	mainCode[0] = PUSH;
+	mainCode[1] = 10; //arg
+	mainCode[2] = CALL;
+	mainCode[3] = 1;
+	mainCode[4] = factPointer.code[0];
+	mainCode[5] = factPointer.code[1];
+	mainCode[6] = PRINT;
+	mainCode[7] = RET;
 
 //	Method *mtd1 = {&fact_code};
 //	Method *mtd2 = {&main_code};
 //
 //	execute(mtd2);
 
-
-	vm.codeList = add_example;
 	vm.pc = 0;
 	vm.funcPointer = 0;
 
-	execute(&vm);
+	execute(&vm, mainCode);
 
 	return 0;
 }
