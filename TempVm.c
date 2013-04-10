@@ -190,7 +190,7 @@ int main (void)
 	fact_mainCode[6] = PRINT;
 	fact_mainCode[7] = RET;
 
-	Code fibCode[30];
+	Code fibCode[40];
 	Pointer fibPointer;
 	fibPointer.address = fibCode;
 	fibCode[0] = LOAD_ARG;
@@ -198,30 +198,31 @@ int main (void)
 	fibCode[2] = PUSH;
 	fibCode[3] = 3;
 	fibCode[4] = GTEQ;
-	fibCode[5] = 9;
-	fibCode[6] = PUSH;
-	fibCode[7] = 1;
-	fibCode[8] = RET;
-	fibCode[9] = LOAD_ARG;
-	fibCode[10] = 1;
-	fibCode[11] = PUSH;
-	fibCode[12] = 1;
-	fibCode[13] = SUB;
-	fibCode[14] = CALL;
-	fibCode[15] = 1;
-	fibCode[16] = fibPointer.code[0];
-	fibCode[17] = fibPointer.code[1];
-	fibCode[18] = LOAD_ARG;
-	fibCode[19] = 1;
-	fibCode[20] = PUSH;
-	fibCode[21] = 2;
-	fibCode[22] = SUB;
-	fibCode[23] = CALL;
-	fibCode[24] = 1;
-	fibCode[25] = fibPointer.code[0];
-	fibCode[26] = fibPointer.code[1];
-	fibCode[27] = MUL;
-	fibCode[28] = RET;
+	fibCode[5] = IF_JUMP;
+	fibCode[6] = 10;
+	fibCode[7] = PUSH;
+	fibCode[8] = 1;
+	fibCode[9] = RET;
+	fibCode[10] = LOAD_ARG;
+	fibCode[11] = 1;
+	fibCode[12] = PUSH;
+	fibCode[13] = 1;
+	fibCode[14] = SUB;
+	fibCode[15] = CALL;
+	fibCode[16] = 1;
+	fibCode[17] = fibPointer.code[0];
+	fibCode[18] = fibPointer.code[1];
+	fibCode[19] = LOAD_ARG;
+	fibCode[20] = 1;
+	fibCode[21] = PUSH;
+	fibCode[22] = 2;
+	fibCode[23] = SUB;
+	fibCode[24] = CALL;
+	fibCode[25] = 1;
+	fibCode[26] = fibPointer.code[0];
+	fibCode[27] = fibPointer.code[1];
+	fibCode[28] = ADD;
+	fibCode[29] = RET;
 
 	Code fib_mainCode[10];
 	fib_mainCode[0] = PUSH;
@@ -241,7 +242,8 @@ int main (void)
 	vm.pc = 0;
 	vm.funcPointer = 0;
 
-	execute(&vm, fact_mainCode);
+	//execute(&vm, fact_mainCode);
+	execute(&vm, fib_mainCode);
 
 	return 0;
 }
